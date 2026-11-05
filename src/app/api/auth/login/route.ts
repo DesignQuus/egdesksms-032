@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { queryTable } from '../../../../../egdesk-helpers';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
+import { AUTH_COOKIE, getJwtSecret } from '@/lib/auth';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'egdesk-super-secret-key');
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
     // 1. 운영자 조회
     const result = await queryTable('crm_operators', { filters: { username } });
     if (!result.rows || result.rows.length === 0) {
-      return NextResponse.json({ success: false, error: '존재하지 않는 계정입니다.' }, { status: 401 });
+      return NextResponse.json({ success: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.' }, { status: 401 });
     }
 
     const user = result.rows[0];
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
     // 2. 비밀번호 검증
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
-      return NextResponse.json({ success: false, error: '비밀번호가 일치하지 않습니다.' }, { status: 401 });
+      return NextResponse.json({ success: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.' }, { status: 401 });
     }
 
     // 3. JWT 토큰 생성
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('24h') // 24시간 유지
-      .sign(JWT_SECRET);
+      .sign(await getJwtSecret());
 
     // 4. 쿠키에 토큰 설정
     const response = NextResponse.json({
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
     });
 
     response.cookies.set({
-      name: 'auth_token',
+      name: AUTH_COOKIE,
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

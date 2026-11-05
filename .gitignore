@@ -40,3 +40,30 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 storage/
+
+# ===== 보안: 민감정보·로컬 데이터·디버그 산출물 =====
+# 로컬 DB / 데이터
+*.db
+*.db-journal
+*.sqlite
+crm_data.db
+test.csv
+# 브라우저 세션·쿠키 (로그인 정보 포함)
+scripts/naver_session.json
+**/naver_session.json
+**/playwright-profile/
+# 릴리스 패키지 (빌드 산출물, 세션 데이터 포함 위험)
+/releases/
+# 디버그 산출물
+/artifacts/
+out.json
+test-fetch*.json
+diff*.txt
+# 백업 파일
+*.bak
+*.backup.ts
+*.egdesk-backup
+# 업로드 파일 (사용자 데이터)
+/public/uploads/
+
+!.env.example

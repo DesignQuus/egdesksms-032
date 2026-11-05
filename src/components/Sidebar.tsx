@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
+import { verifyAuthToken } from '@/lib/auth';
 import { LogOut } from 'lucide-react';
 import SidebarMenu from './SidebarMenu';
 
@@ -11,13 +11,9 @@ export default async function Sidebar() {
   let userRole = 'SUB_OPERATOR';
 
   if (token) {
-    try {
-      const payload = decodeJwt(token);
-      if (payload.name) userName = payload.name as string;
-      if (payload.role) userRole = payload.role as string;
-    } catch (e) {
-      console.error("Invalid token in Sidebar");
-    }
+    const payload = await verifyAuthToken(token);
+    if (payload?.name) userName = payload.name;
+    if (payload?.role) userRole = payload.role;
   }
 
 

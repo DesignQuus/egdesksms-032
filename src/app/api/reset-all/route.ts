@@ -2,8 +2,13 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { listTables, deleteTable, insertRows } from '../../../../egdesk-helpers';
 import { setupDatabase } from '@/lib/setup-db';
+import { canRunDangerousRoute } from '@/lib/auth';
 
-export async function GET() {
+// 전체 데이터 삭제 + 더미 데이터 생성: 개발 모드 + ENABLE_DANGEROUS_ROUTES=true + 최고관리자만 허용
+export async function POST() {
+  if (!(await canRunDangerousRoute())) {
+    return NextResponse.json({ success: false, error: 'Not Found' }, { status: 404 });
+  }
   try {
     // 1. 기존 테이블 모두 삭제
     const tablesRes = await listTables();
