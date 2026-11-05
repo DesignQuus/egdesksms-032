@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { queryTable, insertRows, updateRows } from '../../../../../egdesk-helpers';
+import { queryTable, insertRows, updateRows } from '@/lib/egdesk-db';
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';

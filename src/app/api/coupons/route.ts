@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { queryTable, insertRows, updateRows, deleteRows } from '../../../../egdesk-helpers';
+import { queryTable, insertRows, updateRows, deleteRows } from '@/lib/egdesk-db';
 
 // GET /api/coupons : 발급된 쿠폰 목록 조회
 export async function GET() {

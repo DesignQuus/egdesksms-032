@@ -1,5 +1,5 @@
 import { Users, MessageSquare, CheckCircle, Clock, AlertTriangle } from "lucide-react";
-import { queryTable } from "@/../egdesk-helpers";
+import { queryTable } from "@/lib/egdesk-db";
 import MobileHubWidget from "@/components/MobileHubWidget";
 
 

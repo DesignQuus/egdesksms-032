@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { queryTable, insertRows, deleteRows } from '../../../../egdesk-helpers';
+import { queryTable, insertRows, updateRows, deleteRows } from '@/lib/egdesk-db';
 
 // GET /api/products : 상품 목록 조회
 export async function GET() {
@@ -40,7 +40,6 @@ export async function POST(req: Request) {
     }
 
     const newId = id || Date.now().toString();
-    const { insertRows } = require('../../../../egdesk-helpers');
     await insertRows('products', [{
       id: newId,
       name,
@@ -81,8 +80,6 @@ export async function PUT(req: Request) {
       available_methods: Array.isArray(available_methods) ? available_methods.join(',') : (available_methods || '')
     };
 
-    // Use updateRows from egdesk-helpers
-    const { updateRows } = require('../../../../egdesk-helpers');
     await updateRows('products', updates, { filters: { id: id } });
 
     return NextResponse.json({ success: true, id });

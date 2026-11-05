@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { queryTable, insertRows, updateRows } from '../../../../../egdesk-helpers';
+import { queryTable, insertRows, updateRows } from '@/lib/egdesk-db';
 
 // 기본 설정 값 정의
 const DEFAULT_SETTINGS = {

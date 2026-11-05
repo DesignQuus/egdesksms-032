@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { queryTable } from '../../../../../egdesk-helpers';
+import { queryTable } from '@/lib/egdesk-db';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
 import { AUTH_COOKIE, getJwtSecret } from '@/lib/auth';

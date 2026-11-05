@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { queryTable } from '../../../../../egdesk-helpers';
+import { queryTable } from '@/lib/egdesk-db';
 
 // GET /api/orders/detail?id=...
 // 주문번호 또는 예약 ID로 상세 내역 조회
