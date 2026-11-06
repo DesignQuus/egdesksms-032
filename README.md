@@ -65,3 +65,11 @@ npm run dev
 * **Frontend/Backend**: Next.js (App Router 기반), React, TypeScript
 * **Database**: Local SQLite (`crm_data.db`) 및 이지데스크 API 서버 연동
 * **Styling**: Vanilla CSS 및 TailwindCSS 하이브리드 구성
+
+## PC 업데이트 (이지데스크 PC, Windows)
+
+- **수동**: 프로젝트 폴더의 `update.cmd` 를 더블클릭하면 GitHub `master` 의 최신 내용을 받는다.
+- **자동(권장)**: `autoupdate-on.cmd` 를 한 번 실행하면 작업 스케줄러(`EGDesk SMS Auto Update`)가 10분마다 창 없이 받아 온다. 끄기는 `autoupdate-off.cmd`, 기록은 `%LOCALAPPDATA%\EgdeskSms\autoupdate.log`(`Get-Content … -Encoding UTF8` 로 보기).
+- 이지데스크가 고치는 파일(`package.json`, `next.config.ts`, `egdesk-helpers.ts`, `egdesk.config.ts`, `src/lib/api.ts` 등)과 `CLAUDE.md` 의 PC 메모는 보관 후 그대로 되돌린다. 그 밖의 파일을 PC 에서 고쳤으면 덮어쓰지 않고 멈춘다. 특히 `src/proxy.ts`(로그인·권한 검사)가 바뀌어 있으면 멈추고 기록에 남긴다.
+- 개발 서버(`next dev`)는 바뀐 코드를 자동 반영한다. 의존성이 바뀐 경우에만 이지데스크에서 ■ → ▶.
+
