@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+
+jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # next.config.ts 는 이지데스크가 생성·관리하는 파일이라 고치지 않고 검사에서만 제외한다.
+      - run: npx tsc --noEmit -p tsconfig.ci.json
+
+  lint:
+    name: Lint (no new errors)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/ci/lint-ratchet.mjs
+
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx next build
+        env:
+          # 빌드 확인용 가짜 값(비밀 아님). 실제 값은 PC 의 .env.local 에만 둔다.
+          NEXT_PUBLIC_EGDESK_PROJECT_ID: ci-build
+          JWT_SECRET: ci-only-not-a-real-secret-ci-only-not-a-real-secret
+          INTERNAL_API_TOKEN: ci-only-internal-token
