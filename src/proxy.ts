@@ -1,6 +1,37 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { AUTH_COOKIE, INTERNAL_TOKEN_HEADER, isValidInternalToken, verifyAuthToken } from '@/lib/auth';
+import { INTERNAL_TOKEN_HEADER, getSessionUser, isValidInternalToken, type SessionUser } from '@/lib/auth';
+import {
+  CSRF_COOKIE, CSRF_HEADER, LEGACY_JWT_COOKIE, SESSION_COOKIE, isOriginAllowed, isSafeMethod, tokensEqual,
+} from '@/lib/security/core';
+
+/**
+ * CSRF 방어(inprint 와 같은 방식):
+ * 1. 상태를 바꾸는 요청의 Origin(없으면 Referer)은 이 서버·터널 주소여야 한다.
+ * 2. 로그인 세션으로 보내는 요청은 세션별 토큰을 X-CSRF-Token 헤더로 함께 보내야 한다
+ *    (화면에서는 CsrfFetch 가 sms_csrf 쿠키 값을 자동으로 붙인다).
+ */
+function csrfRejection(request: NextRequest, found: SessionUser | null): NextResponse | null {
+  if (isSafeMethod(request.method)) return null;
+  const originOk = isOriginAllowed({
+    origin: request.headers.get('origin'),
+    referer: request.headers.get('referer'),
+    requestOrigin: request.nextUrl.origin,
+    forwardedHost: request.headers.get('x-forwarded-host'),
+    forwardedProto: request.headers.get('x-forwarded-proto'),
+    extraOrigins: [process.env.NEXT_PUBLIC_EGDESK_TUNNEL_URL, process.env.APP_ORIGINS],
+  });
+  if (!originOk) {
+    return NextResponse.json({ success: false, error: '허용되지 않은 요청 출처입니다.', code: 'CSRF_ORIGIN' }, { status: 403 });
+  }
+  if (found && !tokensEqual(request.headers.get(CSRF_HEADER), found.session.csrfToken)) {
+    return NextResponse.json(
+      { success: false, error: '보안 토큰이 유효하지 않습니다. 페이지를 새로고침해주세요.', code: 'CSRF_TOKEN' },
+      { status: 403 },
+    );
+  }
+  return null;
+}
 
 /**
  * 로그인 없이 호출 가능한 API (고객용 스토어·예약·테이블오더 페이지에서 사용)
@@ -42,11 +73,19 @@ function isPublicPage(pathname: string) {
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl; // basePath 제외된 경로
-  const user = await verifyAuthToken(request.cookies.get(AUTH_COOKIE)?.value);
+  // 로그인 세션은 필요할 때만 My DB 에서 조회한다(정적 파일 요청마다 조회하지 않음).
+  const sessionToken = request.cookies.get(SESSION_COOKIE)?.value;
+  let sessionLookup: Promise<SessionUser | null> | null = null;
+  const getUser = () => (sessionLookup ??= sessionToken ? getSessionUser(sessionToken).catch(() => null) : Promise.resolve(null));
 
   // EGDesk 데이터 프록시(DB 전체 읽기/쓰기/삭제 가능)는 로그인한 운영자만 허용
-  if (pathname.includes('__') && pathname.includes('_proxy') && !user) {
-    return NextResponse.json({ success: false, error: '로그인이 필요합니다.' }, { status: 401 });
+  if (pathname.includes('__') && pathname.includes('_proxy')) {
+    const found = await getUser();
+    if (!found) {
+      return NextResponse.json({ success: false, error: '로그인이 필요합니다.' }, { status: 401 });
+    }
+    const rejected = csrfRejection(request, found);
+    if (rejected) return rejected;
   }
 
   // Intercept __user_data_proxy requests
@@ -186,9 +225,13 @@ export async function proxy(request: NextRequest) {
     const isInternal = isValidInternalToken(request.headers.get(INTERNAL_TOKEN_HEADER));
     // 최초 설치용: 라우트 내부에서 '운영자 0명 또는 최고관리자'인지 다시 검사
     const isSetup = pathname === '/api/setup-admin' || pathname === '/api/setup';
-    if (!isPublic && !isInternal && !isSetup && !user) {
+    if (isInternal) return NextResponse.next();
+    const found = await getUser();
+    if (!isPublic && !isSetup && !found) {
       return NextResponse.json({ success: false, error: '로그인이 필요합니다.' }, { status: 401 });
     }
+    const rejected = csrfRejection(request, found);
+    if (rejected) return rejected;
     return NextResponse.next();
   }
 
@@ -196,13 +239,15 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 그 외 관리자 페이지: 유효한 토큰이 없으면 로그인으로 이동 (위조·만료 토큰은 쿠키 삭제)
-  if (!user) {
+  // 그 외 관리자 페이지: 유효한 세션이 없으면 로그인으로 이동 (만료·무효 세션과 예전 JWT 쿠키는 삭제)
+  if (!(await getUser())) {
     const loginUrl = request.nextUrl.clone(); // basePath 유지
     loginUrl.pathname = '/login';
     loginUrl.search = '';
     const res = NextResponse.redirect(loginUrl);
-    if (request.cookies.get(AUTH_COOKIE)) res.cookies.delete(AUTH_COOKIE);
+    for (const name of [SESSION_COOKIE, CSRF_COOKIE, LEGACY_JWT_COOKIE]) {
+      if (request.cookies.get(name)) res.cookies.delete(name);
+    }
     return res;
   }
 

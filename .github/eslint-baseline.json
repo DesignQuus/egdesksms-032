@@ -1,5 +1,5 @@
 {
-  "total": 394,
+  "total": 393,
   "files": {
     "check_api_key.js": 1,
     "create_crm_orders.ts": 1,
@@ -36,7 +36,6 @@
     "src/app/AiSettingsCard.tsx": 1,
     "src/app/api/ad-templates/route.ts": 4,
     "src/app/api/ai-sms/route.ts": 2,
-    "src/app/api/auth/login/route.ts": 1,
     "src/app/api/automation/route.ts": 3,
     "src/app/api/coupons/route.ts": 4,
     "src/app/api/coupons/verify/route.ts": 1,

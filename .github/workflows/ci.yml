@@ -51,6 +51,7 @@ jobs:
         with:
           node-version: 22
       - run: node --test scripts/pc/lib.test.mjs
+      - run: node --experimental-strip-types --test scripts/test/security-core.test.mjs
 
   build:
     name: Production build
