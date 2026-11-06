@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { gmAutomation } from '@/lib/google-messages';
-import { insertRows } from '@/../egdesk-helpers';
+import { insertRows } from '@/lib/egdesk-db';
 
 export async function POST(request: Request) {
   try {

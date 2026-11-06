@@ -7,7 +7,7 @@ import {
   insertRows,
   updateRows,
   deleteRows
-} from '../../../../egdesk-helpers';
+} from '@/lib/egdesk-db';
 
 // 테이블 자동 생성 초기화 함수
 async function initTables() {

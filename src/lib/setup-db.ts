@@ -1,4 +1,4 @@
-import { createTable, queryTable, insertRows, updateRows, deleteRows, deleteTable } from '../../egdesk-helpers';
+import { createTable, queryTable, insertRows, updateRows, deleteRows, deleteTable } from '@/lib/egdesk-db';
 
 export async function setupDatabase() {
   const safeCreateTable = async (displayName: string, columns: any[], options: any) => {

@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { queryTable, insertRows } from '@/../egdesk-helpers';
+import { queryTable, insertRows } from '@/lib/egdesk-db';
 import { triggerAutomation } from '@/lib/automation-trigger';
 
 export async function GET(request: Request) {

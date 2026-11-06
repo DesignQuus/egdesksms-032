@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { queryTable } from '../../../../../egdesk-helpers';
+import { queryTable } from '@/lib/egdesk-db';
 
 // POST /api/coupons/verify : 쿠폰 코드 유효성 검증 및 할인 금액 계산
 export async function POST(req: Request) {

@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { listTables, deleteTable, insertRows } from '../../../../egdesk-helpers';
+import { listTables, deleteTable, insertRows } from '@/lib/egdesk-db';
 import { setupDatabase } from '@/lib/setup-db';
 import { canRunDangerousRoute } from '@/lib/auth';
 

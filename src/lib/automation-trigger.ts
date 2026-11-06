@@ -1,4 +1,4 @@
-import { queryTable } from '../../egdesk-helpers';
+import { queryTable } from '@/lib/egdesk-db';
 
 export async function triggerAutomation(eventId: string, payload: { name: string, phone: string, [key: string]: any }) {
   try {

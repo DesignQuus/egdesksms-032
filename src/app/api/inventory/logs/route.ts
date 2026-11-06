@@ -4,7 +4,7 @@ import {
   queryTable,
   insertRows,
   updateRows
-} from '../../../../../egdesk-helpers';
+} from '@/lib/egdesk-db';
 
 // GET: 재고 변동 로그 목록 조회
 export async function GET() {

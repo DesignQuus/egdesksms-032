@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { queryTable } from '@/../egdesk-helpers';
+import { queryTable } from '@/lib/egdesk-db';
 
 // GET /api/customers/history?phone=...
 // 특정 고객의 종합 이력(주문, 거래, 배송 내역)을 한 번에 조회합니다.

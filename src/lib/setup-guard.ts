@@ -1,4 +1,4 @@
-import { queryTable } from '../../egdesk-helpers';
+import { queryTable } from '@/lib/egdesk-db';
 import { getCurrentUser } from '@/lib/auth';
 
 /** 운영자 계정이 하나라도 있는지 (테이블이 없거나 조회 실패 시 false = 최초 설치 상태) */

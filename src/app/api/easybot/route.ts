@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { queryTable, executeSQL, listTables } from '../../../../egdesk-helpers';
+import { queryTable, executeSQL, listTables } from '@/lib/egdesk-db';
 import fs from 'fs';
 import path from 'path';
 

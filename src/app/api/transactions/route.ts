@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { queryTable, insertRows, deleteRows } from '../../../../egdesk-helpers';
+import { queryTable, insertRows, deleteRows } from '@/lib/egdesk-db';
 
 // GET /api/transactions : 거래 내역 목록 조회
 export async function GET(req: Request) {

@@ -1,4 +1,4 @@
-import { createTable } from '../../egdesk-helpers';
+import { createTable } from '@/lib/egdesk-db';
 
 async function main() {
   console.log('Creating ad_templates table...');

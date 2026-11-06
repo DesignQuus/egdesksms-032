@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { queryTable, deleteRows, insertRows } from '../../../../egdesk-helpers';
+import { queryTable, deleteRows, insertRows } from '@/lib/egdesk-db';
 
 // Helper to interact with MCP for saving settings using egdesk-helpers.ts
 async function saveSetting(key: string, value: string) {
