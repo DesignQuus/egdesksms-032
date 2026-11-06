@@ -28,16 +28,21 @@ npm run dev
 ### 3단계: 최고관리자 계정 자동 생성
 그 다음, 대시보드에 로그인할 수 있는 관리자 계정을 활성화하기 위해 아래 엔드포인트에 1회 접속합니다.
 👉 **최고관리자 계정 셋업 주소**: `http://localhost:3000/api/setup-admin`
-> 접속 시 `{"success":true,"message":"Default SUPER_ADMIN created (admin / admin123)"}` 메시지가 나타나며 최고관리자 계정이 활성화됩니다.
+> 접속 시 `{"success":true,"username":"admin","password":"..."}` 형태로 **무작위 비밀번호가 1회만** 표시됩니다. 반드시 바로 저장하세요.
+> 미리 정한 비밀번호를 쓰려면 `.env.local`에 `ADMIN_INITIAL_PASSWORD`(8자 이상)를 지정합니다.
+> 두 셋업 주소 모두 **운영자 계정이 하나도 없을 때만** 로그인 없이 동작하고, 이후에는 최고관리자만 실행할 수 있습니다.
 
 ---
 
 ## 🔐 초기 로그인 계정 정보
 
+> [!IMPORTANT]
+> 실행 전 `.env.example`을 `.env.local`로 복사해 `JWT_SECRET`, `INTERNAL_API_TOKEN` 등을 채워 주세요. 네이버 블로그 RPA 데몬은 `INTERNAL_API_TOKEN`으로 서버 API에 인증합니다.
+
 테이블 및 관리자 셋업이 완료되었다면 대시보드(`http://localhost:3000`)에 접속하여 아래 계정으로 로그인해 주십시오.
 
 * **최고관리자 아이디**: `admin`
-* **최고관리자 비밀번호**: `admin123`
+* **최고관리자 비밀번호**: 3단계에서 표시된 비밀번호 (또는 `ADMIN_INITIAL_PASSWORD` 값)
 * **권한 등급**: 최고관리자 (`SUPER_ADMIN`)
 
 > [!NOTE]

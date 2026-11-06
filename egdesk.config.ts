@@ -6,8 +6,9 @@
  */
 
 export const EGDESK_CONFIG = {
-  apiUrl: 'http://localhost:8080',
-  apiKey: 'a67ddc0f-7e2b-4997-9a0b-9667a74c89d0',
+  // 키는 코드에 넣지 말고 .env.local 또는 EGDesk 실행 환경변수로 주입
+  apiUrl: process.env.NEXT_PUBLIC_EGDESK_API_URL || 'http://localhost:8080',
+  apiKey: process.env.NEXT_PUBLIC_EGDESK_API_KEY || '',
 } as const;
 
 export interface TableDefinition {

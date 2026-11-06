@@ -2,19 +2,11 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { queryTable, insertRows, deleteRows } from '../../../../egdesk-helpers';
 import bcrypt from 'bcryptjs';
-import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
+import { getCurrentUser } from '@/lib/auth';
 
 async function getRoleFromToken() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('auth_token')?.value;
-  if (!token) return 'SUB_OPERATOR';
-  try {
-    const payload = decodeJwt(token);
-    return payload.role as string || 'SUB_OPERATOR';
-  } catch (e) {
-    return 'SUB_OPERATOR';
-  }
+  const user = await getCurrentUser(); // 서명·만료 검증
+  return user?.role || 'SUB_OPERATOR';
 }
 
 export async function GET(req: Request) {

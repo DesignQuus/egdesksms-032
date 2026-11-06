@@ -11,6 +11,10 @@
  * 7. 성공 시 실제 발행된 블로그 포스트 URL을 캡처하고 백엔드 API에 완료 피드백(POSTED)을 전송합니다.
  */
 
+// .env.local → .env 순서로 환경변수 로드 (INTERNAL_API_TOKEN 등)
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env.local') });
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
@@ -19,6 +23,8 @@ const { finished } = require('stream/promises');
 
 // 환경변수 기반 기본 설정 로드
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+// 서버 API 인증용 내부 토큰 (.env의 INTERNAL_API_TOKEN과 동일해야 함)
+const INTERNAL_HEADERS = process.env.INTERNAL_API_TOKEN ? { 'x-internal-token': process.env.INTERNAL_API_TOKEN } : {};
 const SESSION_FILE_PATH = path.join(__dirname, 'naver_session.json');
 
 // 인간적인 타이핑/클릭 패턴 모방을 위한 랜덤 대기 유틸리티 (지터 딜레이)
@@ -34,7 +40,7 @@ async function runNaverRpaDaemon() {
   let browser;
   try {
     // 1. Next.js 백엔드 API를 통해 예약 포스트 리스트 호출 (네이티브 fetch 사용)
-    const resList = await fetch(`${APP_URL}/api/naver-blog/posts`);
+    const resList = await fetch(`${APP_URL}/api/naver-blog/posts`, { headers: INTERNAL_HEADERS });
     const dataList = await resList.json();
     
     if (!dataList.success || !dataList.posts) {
@@ -197,7 +203,7 @@ async function runNaverRpaDaemon() {
 
     const patchRes = await fetch(`${APP_URL}/api/naver-blog/posts`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...INTERNAL_HEADERS },
       body: JSON.stringify({
         id: targetPost.id,
         updates: {
