@@ -3,9 +3,10 @@ import { NextResponse } from 'next/server';
 import { queryTable, insertRows, deleteRows } from '@/lib/egdesk-db';
 import bcrypt from 'bcryptjs';
 import { getCurrentUser } from '@/lib/auth';
+import { revokeOperatorSessions } from '@/lib/security/session';
 
 async function getRoleFromToken() {
-  const user = await getCurrentUser(); // 서명·만료 검증
+  const user = await getCurrentUser(); // DB 세션 + 운영자 권한을 매번 다시 확인
   return user?.role || 'SUB_OPERATOR';
 }
 
@@ -81,6 +82,8 @@ export async function DELETE(req: Request) {
     }
 
     await deleteRows('crm_operators', { filters: { id } });
+    // 삭제된 운영자가 로그인해 둔 세션도 즉시 무효화
+    await revokeOperatorSessions(String(id)).catch(() => undefined);
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

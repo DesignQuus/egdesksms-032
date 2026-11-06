@@ -1,20 +1,15 @@
-import { cookies } from 'next/headers';
-import { verifyAuthToken } from '@/lib/auth';
+import { getCurrentUser } from '@/lib/auth';
 import { LogOut } from 'lucide-react';
 import SidebarMenu from './SidebarMenu';
 
 export default async function Sidebar() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('auth_token')?.value;
   
   let userName = '운영자';
   let userRole = 'SUB_OPERATOR';
 
-  if (token) {
-    const payload = await verifyAuthToken(token);
-    if (payload?.name) userName = payload.name;
-    if (payload?.role) userRole = payload.role;
-  }
+  const user = await getCurrentUser();
+  if (user?.name) userName = user.name;
+  if (user?.role) userRole = user.role;
 
 
   return (
@@ -51,7 +46,11 @@ export default async function Sidebar() {
           "use server";
           const { cookies } = await import("next/headers");
           const cookieStore = await cookies();
-          cookieStore.delete('auth_token');
+          // DB 세션을 지워 즉시 무효화한 뒤 쿠키 삭제
+          const { revokeSession } = await import("@/lib/security/session");
+          const { SESSION_COOKIE, CSRF_COOKIE, LEGACY_JWT_COOKIE } = await import("@/lib/security/core");
+          await revokeSession(cookieStore.get(SESSION_COOKIE)?.value).catch(() => undefined);
+          for (const name of [SESSION_COOKIE, CSRF_COOKIE, LEGACY_JWT_COOKIE]) cookieStore.delete(name);
           const { redirect } = await import("next/navigation");
           redirect('/login');
         }}>

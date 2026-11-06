@@ -73,3 +73,11 @@ npm run dev
 - 이지데스크가 고치는 파일(`package.json`, `next.config.ts`, `egdesk-helpers.ts`, `egdesk.config.ts`, `src/lib/api.ts` 등)과 `CLAUDE.md` 의 PC 메모는 보관 후 그대로 되돌린다. 그 밖의 파일을 PC 에서 고쳤으면 덮어쓰지 않고 멈춘다. 특히 `src/proxy.ts`(로그인·권한 검사)가 바뀌어 있으면 멈추고 기록에 남긴다.
 - 개발 서버(`next dev`)는 바뀐 코드를 자동 반영한다. 의존성이 바뀐 경우에만 이지데스크에서 ■ → ▶.
 
+
+## 로그인 보안 (서버 세션 + CSRF)
+
+- 운영자 로그인은 이지데스크 My DB 의 서버 세션(`crm_user_sessions`, 처음 로그인할 때 자동 생성)으로 관리한다. 쿠키 `sms_session`(HttpOnly)에는 무작위 토큰만 있고 DB 에는 그 SHA-256 해시만 저장한다.
+- 로그아웃·운영자 삭제 시 세션을 지워 **즉시** 무효화한다. 운영자 이름·권한은 요청마다 DB 에서 다시 읽는다. 8시간 쓰지 않으면 만료, 로그인 후 최대 24시간.
+- CSRF: 상태를 바꾸는 요청은 ① Origin(없으면 Referer)이 이 서버·이지데스크 터널(`NEXT_PUBLIC_EGDESK_TUNNEL_URL`)·`APP_ORIGINS` 중 하나여야 하고, ② 로그인 세션 요청은 `X-CSRF-Token` 헤더가 세션 토큰과 같아야 한다. 화면의 `fetch` 에는 `src/components/CsrfFetch.tsx` 가 `sms_csrf` 쿠키 값을 자동으로 붙인다.
+- 로그인은 같은 접속지·아이디로 15분에 5번 실패하면 잠시 막힌다.
+- 서버 간 호출(네이버 RPA 데몬)은 지금처럼 `x-internal-token`(INTERNAL_API_TOKEN)으로 인증한다. `JWT_SECRET` 은 더 이상 쓰지 않는다.
